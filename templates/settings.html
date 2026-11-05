@@ -1,0 +1,32 @@
+{% extends "base_adminlte.html" %}
+{% block title %}Setări{% endblock %}
+{% block page_title %}Setări{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card card-outline card-info">
+            <div class="card-header">
+                <h3 class="card-title">Setări aplicație</h3>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Configurări generale vor fi disponibile aici.</p>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Variabile de mediu</span>
+                        <span class="badge badge-secondary">viitor</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Timeout SSH (secunde)</span>
+                        <span class="badge badge-secondary">viitor</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Număr maxim intrări jurnal</span>
+                        <span class="badge badge-secondary">viitor</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

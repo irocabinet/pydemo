@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8" />
+    <title>SSH Command Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}" />
+    <script
+        src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+        crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</head>
+<body>
+<div class="shell">
+    <div class="shell-header">
+        <div class="window-controls">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+        <div class="title">
+            <span>Remote SSH Command Center</span>
+            <span class="badge">Flask · Paramiko · Live Log</span>
+        </div>
+        <div class="header-user">
+            <span class="header-username">{{ session.username or 'User' }}</span>
+            <a href="{{ url_for('logout') }}" class="logout-link">Ieșire</a>
+        </div>
+    </div>
+    <div class="shell-body">
+        <div class="pane">
+            <div class="pane-header">
+                <div>
+                    <div class="pane-title">Execuție comandă</div>
+                    <div class="pane-subtitle">Conectează-te prin SSH și rulează o comandă pe un server Linux.</div>
+                </div>
+            </div>
+
+            <div class="flash-messages">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+                {% endwith %}
+            </div>
+
+            <form method="post" autocomplete="off">
+                <div class="grid-two">
+                    <div>
+                        <label for="host">Server (host / IP)</label>
+                        <input id="host" name="host" type="text" placeholder="ex: 192.168.1.10 sau server.example.com" required />
+                    </div>
+                    <div>
+                        <label for="port">Port</label>
+                        <input id="port" name="port" type="number" value="22" min="1" max="65535" />
+                    </div>
+                </div>
+
+                <div class="grid-three">
+                    <div>
+                        <label for="username">Utilizator</label>
+                        <input id="username" name="username" type="text" placeholder="ex: root" required />
+                    </div>
+                    <div>
+                        <label for="password">Parolă</label>
+                        <input id="password" name="password" type="password" placeholder="parola SSH" required />
+                    </div>
+                    <div>
+                        <label>&nbsp;</label>
+                        <div style="font-size: 11px; color: #9ca3af;">
+                            Evită parolele în clar în producție. Folosește chei SSH.
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="command">Comandă</label>
+                    <textarea id="command" name="command" placeholder="ex: uname -a" required></textarea>
+                </div>
+
+                <div class="actions">
+                    <button type="submit">
+                        <span class="icon">▶</span>
+                        Rulează comanda
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="pane">
+            <div class="pane-header">
+                <div>
+                    <div class="pane-title">Jurnal execuție</div>
+                    <div class="pane-subtitle">Ultimele comenzi rulate și rezultatul lor.</div>
+                </div>
+            </div>
+
+            <div class="log-container">
+                {% if command_log %}
+                    {% for entry in command_log %}
+                        <div class="log-entry">
+                            <div class="log-header">
+                                <div class="log-meta">
+                                    <span class="pill">{{ entry.host }} · {{ entry.username }}</span>
+                                    {% if entry.status == "success" %}
+                                        <span class="pill status-success">SUCCESS</span>
+                                    {% elif entry.status == "error" %}
+                                        <span class="pill status-error">ERROR</span>
+                                    {% else %}
+                                        <span class="pill status-exit">STATUS: {{ entry.status }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="timestamp">{{ entry.timestamp }}</div>
+                            </div>
+
+                            <div class="log-command">$ {{ entry.command }}</div>
+
+                            {% if entry.stdout %}
+                                <div>
+                                    <div class="log-section-title">STDOUT</div>
+                                    <pre>{{ entry.stdout }}</pre>
+                                </div>
+                            {% endif %}
+
+                            {% if entry.stderr %}
+                                <div>
+                                    <div class="log-section-title">STDERR</div>
+                                    <pre>{{ entry.stderr }}</pre>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-log">
+                        Nu există încă comenzi rulate. Completează detaliile de conexiune și o comandă, apoi apasă
+                        <strong>Rulează comanda</strong>.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

@@ -1,0 +1,18 @@
+# Pornește SSH Dashboard într-un container.
+# Build (necesită internet):  docker-compose build
+# Rulare:                    docker-compose up -d
+# Pe server fără internet:   transferă imaginea (docker save) și rulează cu docker-compose (fără build).
+
+services:
+  app:
+    build: .
+    image: ssh-dashboard:latest
+    container_name: ssh-dashboard
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_SECRET_KEY=${FLASK_SECRET_KEY:-change-me-in-production}
+      - APP_LOGIN_USER=${APP_LOGIN_USER:-admin}
+      - APP_LOGIN_PASSWORD=${APP_LOGIN_PASSWORD:-admin}
+      - USE_LOCAL_VENDOR=1
+    restart: unless-stopped

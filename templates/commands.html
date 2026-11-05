@@ -1,0 +1,97 @@
+{% extends "base_adminlte.html" %}
+{% block title %}Execută comenzi{% endblock %}
+{% block page_title %}Execută comenzi{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-7">
+        <div class="card card-outline card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Conectare SSH și execuție comandă</h3>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Conectează-te la un server Linux prin SSH și rulează o comandă.</p>
+                <form method="post" action="{{ url_for('commands') }}" autocomplete="off">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label for="host">Server (host / IP)</label>
+                                <input id="host" name="host" type="text" class="form-control" placeholder="ex: 192.168.1.10" required />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="port">Port</label>
+                                <input id="port" name="port" type="number" class="form-control" value="22" min="1" max="65535" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="username">Utilizator SSH</label>
+                                <input id="username" name="username" type="text" class="form-control" placeholder="ex: root" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="password">Parolă SSH</label>
+                                <input id="password" name="password" type="password" class="form-control" placeholder="parola" required />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="command">Comandă</label>
+                        <textarea id="command" name="command" class="form-control" rows="2" placeholder="ex: uname -a" required></textarea>
+                        <small class="form-text text-muted">Evită parolele în clar în producție. Folosește chei SSH.</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-play mr-1"></i> Rulează comanda
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card card-outline card-secondary">
+            <div class="card-header">
+                <h3 class="card-title">Jurnal execuție</h3>
+            </div>
+            <div class="card-body p-0">
+                <div class="p-3" style="max-height: 420px; overflow-y: auto;">
+                    {% if command_log %}
+                        {% for entry in command_log %}
+                            <div class="border rounded p-2 mb-2 bg-light">
+                                <div class="d-flex justify-content-between align-items-center small text-muted mb-1">
+                                    <span>{{ entry.host }} · {{ entry.username }}</span>
+                                    <span>{{ entry.timestamp }}</span>
+                                </div>
+                                <code class="d-block mb-1">$ {{ entry.command }}</code>
+                                {% if entry.status == "success" %}
+                                    <span class="badge badge-success">SUCCESS</span>
+                                {% elif entry.status == "error" %}
+                                    <span class="badge badge-danger">ERROR</span>
+                                {% else %}
+                                    <span class="badge badge-warning">{{ entry.status }}</span>
+                                {% endif %}
+                                {% if entry.stdout %}
+                                    <pre class="small mt-2 mb-0 bg-dark text-light p-2 rounded">{{ entry.stdout }}</pre>
+                                {% endif %}
+                                {% if entry.stderr %}
+                                    <pre class="small mt-1 mb-0 bg-danger text-white p-2 rounded">{{ entry.stderr }}</pre>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted mb-0">Nu există încă comenzi rulate. Completează formularul și apasă <strong>Rulează comanda</strong>.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}
